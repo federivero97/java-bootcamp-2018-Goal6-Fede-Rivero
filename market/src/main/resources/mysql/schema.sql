@@ -14,3 +14,13 @@ CREATE TABLE IF NOT EXISTS user(
   email VARCHAR(30),
   INDEX(user_name)
 ) engine=InnoDB;
+
+
+CREATE TABLE IF NOT EXISTS product(
+  id INT UNSIGNED NOT NULL AUTO_INCREMENT PRIMARY KEY,
+  product_name VARCHAR(30) UNIQUE,
+  price DOUBLE,
+  stock INTEGER,
+  INDEX(product_name)
+) engine=InnoDB;
+

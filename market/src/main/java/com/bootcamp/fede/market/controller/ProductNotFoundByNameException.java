@@ -1,8 +1,8 @@
 package com.bootcamp.fede.market.controller;
 
-public class ProductNotFoundByName extends RuntimeException {
+public class ProductNotFoundByNameException extends RuntimeException {
 
-    ProductNotFoundByName(String name) {
+    ProductNotFoundByNameException(String name) {
         super("Could not find product " + name);
     }
 

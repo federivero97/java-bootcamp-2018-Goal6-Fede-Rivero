@@ -24,9 +24,8 @@ public class UserController {
 
     @PostMapping("/user/new")
     public User newUser(@RequestParam(name = "name") String name,
-                 @RequestParam(name = "password") String password,
-                 @RequestParam(name = "email") String email){
-
+                        @RequestParam(name = "password") String password,
+                        @RequestParam(name = "email") String email){
         User newUser = new User(name, password,email);
         return userRepository.save(newUser);
     }

@@ -35,8 +35,26 @@ public class UserController {
         return userRepository.findById(id).orElseThrow(() -> new UserNotFoundException(id));
     }
 
+    @GetMapping("/user/{name}/exist")
+    public boolean existUser(@PathVariable String name){
+        return (userRepository.findByName(name)!=null);
+    }
+
+    @GetMapping("/user/find-by-name/{name}")
+    public User getUser(@PathVariable String name){
+        User existUser = userRepository.findByName(name);
+        if (existUser != null){
+            return existUser;
+        } else {
+            throw new UserNotFoundByNameException(name);
+        }
+    }
+
     @PutMapping("/user/{id}/update")
-    public User updateUser(@RequestParam String name,@RequestParam String password,@RequestParam String email, @PathVariable Long id) {
+    public User updateUser(@PathVariable Long id,
+                           @RequestParam String name,
+                           @RequestParam String password,
+                           @RequestParam String email) {
         return userRepository.findById(id)
                 .map(user -> {
                     if (name!="") {

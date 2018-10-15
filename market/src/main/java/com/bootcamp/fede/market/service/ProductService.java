@@ -8,7 +8,7 @@ import java.util.List;
 
 public class ProductService {
 
-    private ProductController productController;
+    private final ProductController productController;
 
     @Autowired
     public ProductService(ProductController productController){
@@ -16,8 +16,10 @@ public class ProductService {
     }
 
     public Product newProduct(Product product){
-        return productController.newProduct(product.getName(),product.getPrice(),product.getStock());
+        return productController.newProduct(product.getName(), product.getPrice(), product.getStock());
     }
+
+    public boolean existProduct(Product product){return productController.existProduct(product.getName());}
 
     public Product getProduct(Long id){
         return productController.getProduct(id);
@@ -31,12 +33,12 @@ public class ProductService {
         return productController.getAllProducts();
     }
 
-    public Product updateProduct(String newName, Double newPrice, Integer newStock, Long id){
-        return productController.updateProduct(newName,newPrice,newStock,id);
+    public Product updateProduct(Product product){
+        return productController.updateProduct(product.getId(), product.getName(), product.getPrice(), product.getStock());
     }
 
-    public Product increaseStock(Integer amount, Long id){
-        return productController.increaseStock(amount,id);
+    public Product increaseStock(Product product, Integer amount){
+        return productController.increaseStock(product.getId(), amount);
     }
 
     public void deleteUser(Long id) {

@@ -9,7 +9,7 @@ import java.util.List;
 public class UserService {
 
 
-    private UserController userController;
+    private final UserController userController;
 
     @Autowired
     public UserService(UserController userController){
@@ -17,19 +17,25 @@ public class UserService {
     }
 
     public User newUser(User user){
-        return userController.newUser(user.getName(),user.getPassword(),user.getEmail());
+        return userController.newUser(user.getName(), user.getPassword(), user.getEmail());
     }
+
+    public boolean existUser(User user) { return userController.existUser(user.getName());}
 
     public User getUser(Long id){
         return userController.getUser(id);
+    }
+
+    public User getUser(String name){
+        return userController.getUser(name);
     }
 
     public List<User> getAllUsers(){
         return userController.getAllUser();
     }
 
-    public User updateUser(String newName, String newPassword, String newEmail, Long id){
-        return userController.updateUser(newName,newPassword,newEmail,id);
+    public User updateUser(User user){
+        return userController.updateUser(user.getId(), user.getName(), user.getPassword(), user.getEmail());
     }
 
     public void deleteUser(Long id) {

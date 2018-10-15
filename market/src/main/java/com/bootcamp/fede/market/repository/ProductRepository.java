@@ -5,19 +5,16 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.transaction.annotation.Transactional;
-
-import java.util.Collection;
+import sun.rmi.runtime.Log;
 
 public interface ProductRepository extends JpaRepository<Product,Long>{
 
     @Query("SELECT product FROM Product product WHERE product.id =:id")
     @Transactional(readOnly = true)
-    Product findById(@Param("id") int id);
+    Product findByProductId(@Param("id") Long id);
 
     @Query("SELECT DISTINCT product FROM Product product WHERE product.name LIKE :name%")
     @Transactional(readOnly = true)
     Product findByName(@Param("name") String name);
-
-
 
 }

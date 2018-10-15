@@ -24,3 +24,10 @@ CREATE TABLE IF NOT EXISTS product(
   INDEX(product_name)
 ) engine=InnoDB;
 
+
+CREATE TABLE IF NOT EXISTS shopping_cart(
+  user_id INT UNSIGNED NOT NULL PRIMARY KEY,
+  product_id INT UNSIGNED NOT NULL UNIQUE,
+  amount INTEGER NOT NULL,
+  INDEX(user_id)
+) engine=InnoDB;

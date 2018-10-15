@@ -29,18 +29,24 @@ public class ProductController {
         Product existProduct = productRepository.findByName(name);
         if (existProduct==null){
             Product newProduct = new Product(name, price, stock);
-            productRepository.save(newProduct);
             existProduct = newProduct;
+        } else {
+            existProduct.increaseStock(stock);
         }
-        return existProduct;
+        return productRepository.save(existProduct);
     }
 
-    @GetMapping("/product/findById/{id}")
+    @GetMapping("/product/{name}/exist")
+    public boolean existProduct(@PathVariable String name){
+        return (productRepository.findByName(name)!=null);
+    }
+
+    @GetMapping("/product/{id}")
     public Product getProduct(@PathVariable Long id){
-        return productRepository.findById(id).orElseThrow(() -> new ProductNotFoundByIdException(id));
+        return productRepository.findById(id).orElseThrow(() -> new ProductNotFoundException(id));
     }
 
-    @GetMapping("/product/findByName/{name}")
+    @GetMapping("/product/find-by-name/{name}")
     public Product getProduct(@PathVariable String name){
         Product existProduct = productRepository.findByName(name);
         if (existProduct==null){
@@ -50,8 +56,10 @@ public class ProductController {
     }
 
     @PutMapping("/product/{id}/update")
-    public Product updateProduct(@RequestParam String name, @RequestParam Double price,
-                                 @RequestParam Integer stock, @PathVariable Long id) {
+    public Product updateProduct(@PathVariable Long id,
+                                 @RequestParam String name,
+                                 @RequestParam Double price,
+                                 @RequestParam Integer stock) {
         return productRepository.findById(id)
                 .map(product -> {
                     if (name!="") {
@@ -65,11 +73,12 @@ public class ProductController {
                     }
                     return productRepository.save(product);
                 })
-                .orElseThrow(() -> new ProductNotFoundByIdException(id));
+                .orElseThrow(() -> new ProductNotFoundException(id));
     }
 
-    @PutMapping("/product/{id}/increaseStock")
-    public Product increaseStock(@RequestParam Integer amount, @PathVariable Long id){
+    @PutMapping("/product/{id}/stock")
+    public Product increaseStock(@PathVariable Long id,
+                                 @RequestParam Integer amount){
         return productRepository.findById(id)
                 .map(product -> {
                     if (amount!=null){
@@ -77,7 +86,7 @@ public class ProductController {
                     }
                     return productRepository.save(product);
                 })
-                .orElseThrow(() -> new ProductNotFoundByIdException(id));
+                .orElseThrow(() -> new ProductNotFoundException(id));
     }
 
     @DeleteMapping("/product/{id}")

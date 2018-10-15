@@ -25,8 +25,8 @@ public class ProductService {
         return productController.getProduct(id);
     }
 
-    public Product getProduct(String name){
-        return productController.getProduct(name);
+    public List<Product> getProducts(String name){
+        return productController.getProducts(name);
     }
 
     public List<Product> getAllProducts(){

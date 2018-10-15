@@ -47,12 +47,12 @@ public class ProductController {
     }
 
     @GetMapping("/product/find-by-name/{name}")
-    public Product getProduct(@PathVariable String name){
-        Product existProduct = productRepository.findByName(name);
+    public List<Product> getProducts(@PathVariable String name){
+        List<Product> existProduct = productRepository.findLikeName(name);
         if (existProduct==null){
             throw (new ProductNotFoundByNameException(name));
         }
-        return productRepository.findByName(name);
+        return productRepository.findLikeName(name);
     }
 
     @PutMapping("/product/{id}/update")

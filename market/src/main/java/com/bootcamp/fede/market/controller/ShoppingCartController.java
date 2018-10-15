@@ -29,6 +29,9 @@ public class ShoppingCartController {
     public ShoppingCart newShoppingCart(@PathVariable Long userId,
                               @RequestParam(name = "productId") Long productId,
                               @RequestParam(name = "amount") Integer amount){
+        if (amount > productRepository.findByProductId(productId).getStock()){
+            throw new ProductNotAvailableStockException();
+        }
         ShoppingCart existInShoppingCart = shoppingCartRepository.existInShoppingCart(userId,productId);
         if (existInShoppingCart==null){
             ShoppingCart newShoppingCart = new ShoppingCart(userId, productId, amount);
@@ -36,6 +39,7 @@ public class ShoppingCartController {
         } else {
             existInShoppingCart.increaseAmount(amount);
         }
+        productRepository.findByProductId(productId).increaseStock(-amount);
         return shoppingCartRepository.save(existInShoppingCart);
     }
 
@@ -49,13 +53,19 @@ public class ShoppingCartController {
     public ShoppingCart updateAmount(@PathVariable Long userId,
                                      @PathVariable Long productId,
                                      @RequestParam Integer amount){
+
         ShoppingCart existInShoppingCart = shoppingCartRepository.existInShoppingCart(userId, productId);
-        if (amount > 0) {
-            if (existInShoppingCart == null) {
-                existInShoppingCart.setAmount(amount);
-            } else {
-                throw new ShoppingcartNotFoundException(userId, productId);
+        if (existInShoppingCart != null) {
+            Integer orgirinAmount = existInShoppingCart.getAmount();
+            if ((amount - orgirinAmount) > productRepository.findByProductId(productId).getStock()){
+                throw new ProductNotAvailableStockException();
             }
+            if (amount > 0) {
+                existInShoppingCart.setAmount(amount);
+                productRepository.findByProductId(productId).increaseStock(orgirinAmount - amount);
+            }
+        } else {
+            throw new ShoppingcartNotFoundException(userId, productId);
         }
         return shoppingCartRepository.save(existInShoppingCart);
     }
@@ -65,19 +75,23 @@ public class ShoppingCartController {
                                @PathVariable Long productId,
                                @RequestParam Integer amount){
         ShoppingCart existInShoppingCart = shoppingCartRepository.existInShoppingCart(userId, productId);
-
-        if (existInShoppingCart==null){
+        if (existInShoppingCart != null){
+            if (amount > productRepository.findByProductId(productId).getStock()){
+                throw new ProductNotAvailableStockException();
+            }
             Integer actualAmount = existInShoppingCart.getAmount();
-            if ((actualAmount + amount) > 0) {
+            if (amount > 0) {
+                productRepository.findByProductId(productId).increaseStock(-amount);
                 existInShoppingCart.increaseAmount(amount);
             } else {
+                productRepository.findByProductId(productId).increaseStock(amount);
                 existInShoppingCart.setAmount(0);
             }
-            return shoppingCartRepository.save(existInShoppingCart);
-
         } else {
             throw new ShoppingcartNotFoundException(userId, productId);
         }
+        return shoppingCartRepository.save(existInShoppingCart);
+
     }
 
     @GetMapping("/user/{userId}/shopping-cart/value")
@@ -94,6 +108,7 @@ public class ShoppingCartController {
     public void deleteShoppingCart(@PathVariable Long userId,
                               @PathVariable Long productId) {
         ShoppingCart existInShoppingCart = shoppingCartRepository.existInShoppingCart(userId, productId);
+        productRepository.findByProductId(productId).increaseStock(existInShoppingCart.getAmount());
         shoppingCartRepository.delete(existInShoppingCart);
     }
 }

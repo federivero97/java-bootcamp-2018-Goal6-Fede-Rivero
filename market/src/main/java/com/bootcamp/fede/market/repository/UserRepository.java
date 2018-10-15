@@ -10,7 +10,7 @@ public interface UserRepository extends JpaRepository<User,Long>{
 
     @Query("SELECT user FROM User user WHERE user.id =:id")
     @Transactional(readOnly = true)
-    User findById(@Param("id") Integer id);
+    User findByUserId(@Param("id") Long id);
 
 
     @Query("SELECT DISTINCT user FROM User user WHERE user.name LIKE :name%")

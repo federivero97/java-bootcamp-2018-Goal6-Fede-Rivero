@@ -1,6 +1,7 @@
 package com.bootcamp.fede.market.controller;
 
 import com.bootcamp.fede.market.entity.ShoppingCart;
+import com.bootcamp.fede.market.repository.UserRepository;
 import com.bootcamp.fede.market.repository.ProductRepository;
 import com.bootcamp.fede.market.repository.ShoppingCartRepository;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -11,13 +12,15 @@ import java.util.List;
 @RestController
 public class ShoppingCartController {
 
-    private final ShoppingCartRepository shoppingCartRepository;
+    private final UserRepository userRepository;
     private final ProductRepository productRepository;
+    private final ShoppingCartRepository shoppingCartRepository;
 
     @Autowired
-    public ShoppingCartController(ShoppingCartRepository shoppingCartRepository, ProductRepository productRepository){
-        this.shoppingCartRepository = shoppingCartRepository;
+    public ShoppingCartController(UserRepository userRepository, ProductRepository productRepository, ShoppingCartRepository shoppingCartRepository){
         this.productRepository = productRepository;
+        this.userRepository = userRepository;
+        this.shoppingCartRepository = shoppingCartRepository;
     }
 
     @GetMapping("/user/{userId}/shopping-cart")
@@ -29,21 +32,25 @@ public class ShoppingCartController {
     public ShoppingCart newShoppingCart(@PathVariable Long userId,
                               @RequestParam(name = "productId") Long productId,
                               @RequestParam(name = "amount") Integer amount){
-        if (amount < 1){
-            throw new InvalidParamException("amount");
-        }
-        if (amount > productRepository.findByProductId(productId).getStock()){
-            throw new ProductNotAvailableStockException();
-        }
-        ShoppingCart existInShoppingCart = shoppingCartRepository.existInShoppingCart(userId,productId);
-        if (existInShoppingCart==null){
-            ShoppingCart newShoppingCart = new ShoppingCart(userId, productId, amount);
-            existInShoppingCart = newShoppingCart;
+        if (userRepository.findByUserId(userId)==null) {
+            throw new UserNotFoundException(userId);
         } else {
-            existInShoppingCart.increaseAmount(amount);
+            if (amount < 1) {
+                throw new InvalidParamException("amount");
+            }
+            if (amount > productRepository.findByProductId(productId).getStock()) {
+                throw new ProductNotAvailableStockException();
+            }
+            ShoppingCart existInShoppingCart = shoppingCartRepository.existInShoppingCart(userId, productId);
+            if (existInShoppingCart == null) {
+                ShoppingCart newShoppingCart = new ShoppingCart(userId, productId, amount);
+                existInShoppingCart = newShoppingCart;
+            } else {
+                existInShoppingCart.increaseAmount(amount);
+            }
+            productRepository.findByProductId(productId).increaseStock(-amount);
+            return shoppingCartRepository.save(existInShoppingCart);
         }
-        productRepository.findByProductId(productId).increaseStock(-amount);
-        return shoppingCartRepository.save(existInShoppingCart);
     }
 
     @GetMapping("/user/{userId}/shopping-cart/{productId}/exist")

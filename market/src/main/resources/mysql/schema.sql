@@ -27,7 +27,8 @@ CREATE TABLE IF NOT EXISTS product(
 
 CREATE TABLE IF NOT EXISTS shopping_cart(
   user_id INT UNSIGNED NOT NULL PRIMARY KEY,
-  product_id INT UNSIGNED NOT NULL UNIQUE,
+  product_id INT UNSIGNED NOT NULL,
   amount INTEGER NOT NULL,
-  INDEX(user_id)
+  INDEX(user_id),
+  UNIQUE (user_id,product_id)
 ) engine=InnoDB;

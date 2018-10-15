@@ -46,8 +46,8 @@ public class ProductController {
         return productRepository.findById(id).orElseThrow(() -> new ProductNotFoundException(id));
     }
 
-    @GetMapping("/product/find-by-name/{name}")
-    public List<Product> getProducts(@PathVariable String name){
+    @GetMapping("/product/find-by-name")
+    public List<Product> getProducts(@RequestParam(name = "name") String name){
         List<Product> existProduct = productRepository.findLikeName(name);
         if (existProduct==null){
             throw (new ProductNotFoundByNameException(name));
@@ -60,33 +60,42 @@ public class ProductController {
                                  @RequestParam String name,
                                  @RequestParam Double price,
                                  @RequestParam Integer stock) {
-        return productRepository.findById(id)
-                .map(product -> {
-                    if (name!="") {
-                        product.setName(name);
-                    }
-                    if (price!=null){
-                        product.setPrice(price);
-                    }
-                    if (stock!=null){
-                        product.setStock(stock);
-                    }
-                    return productRepository.save(product);
-                })
-                .orElseThrow(() -> new ProductNotFoundException(id));
+        if (price < 0 | stock < 0){
+            throw new InvalidParamException("price or stock");
+        } else {
+            Product existProduct = productRepository.findByProductId(id);
+            if (existProduct != null) {
+                if (name!="") {
+                    existProduct.setName(name);
+                }
+                if (price!=null){
+                    existProduct.setPrice(price);
+                }
+                if (stock!=null){
+                    existProduct.setStock(stock);
+                }
+                return productRepository.save(existProduct);
+            } else {
+                throw new ProductNotFoundException(id);
+            }
+        }
     }
 
     @PutMapping("/product/{id}/stock")
     public Product increaseStock(@PathVariable Long id,
-                                 @RequestParam Integer amount){
-        return productRepository.findById(id)
-                .map(product -> {
-                    if (amount!=null){
-                        product.increaseStock(amount);
-                    }
-                    return productRepository.save(product);
-                })
-                .orElseThrow(() -> new ProductNotFoundException(id));
+                                 @RequestParam Integer stock){
+
+        Product existProduct = productRepository.findByProductId(id);
+        if (existProduct != null) {
+            Integer actualStock = existProduct.getStock();
+                if (actualStock < -stock) {
+                    throw new InvalidParamException("stock");
+                }
+                existProduct.increaseStock(stock);
+                return productRepository.save(existProduct);
+        } else {
+            throw new ProductNotFoundException(id);
+        }
     }
 
     @DeleteMapping("/product/{id}")

@@ -12,7 +12,7 @@ public class ProductNotAvailableStockAdvice {
     @ResponseBody
     @ExceptionHandler(ProductNotAvailableStockException.class)
     @ResponseStatus(HttpStatus.NOT_FOUND)
-    String productNotAvailableStockHandler(ProductNotAvailableStockException ex) {
+    public String productNotAvailableStockHandler(ProductNotAvailableStockException ex) {
         return ex.getMessage();
     }
 }

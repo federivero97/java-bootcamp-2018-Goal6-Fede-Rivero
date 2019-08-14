@@ -4,12 +4,15 @@ import com.bootcamp.fede.market.entity.ShoppingCart;
 import com.bootcamp.fede.market.repository.UserRepository;
 import com.bootcamp.fede.market.repository.ProductRepository;
 import com.bootcamp.fede.market.repository.ShoppingCartRepository;
+import io.swagger.annotations.Api;
+import io.swagger.annotations.ApiOperation;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
 @RestController
+@Api(value="onlinestore", description="Operations pertaining to shopping carts in Market API")
 public class ShoppingCartController {
 
     private final UserRepository userRepository;
@@ -23,11 +26,17 @@ public class ShoppingCartController {
         this.shoppingCartRepository = shoppingCartRepository;
     }
 
+    @ApiOperation(value = "View a list of shopping carts which have a user searching with an ID", response = List.class)
     @GetMapping("/user/{userId}/shopping-cart")
     public List<ShoppingCart> getShoppingCart(@PathVariable Long userId){
-        return shoppingCartRepository.findByUserId(userId);
+        if (userRepository.findByUserId(userId)==null) {
+            throw new UserNotFoundException(userId);
+        } else {
+            return shoppingCartRepository.findByUserId(userId);
+        }
     }
 
+    @ApiOperation(value = "Create a shopping cart selecting an user ID and a product ID", response = ShoppingCart.class)
     @PostMapping("/user/{userId}/shopping-cart/new")
     public ShoppingCart newShoppingCart(@PathVariable Long userId,
                               @RequestParam(name = "productId") Long productId,
@@ -53,12 +62,14 @@ public class ShoppingCartController {
         }
     }
 
+    @ApiOperation(value = "Ask if a product exists in the user shopping cart searching with an ID", response = boolean.class)
     @GetMapping("/user/{userId}/shopping-cart/{productId}/exist")
     public boolean existShoppingCart(@PathVariable Long userId,
                                      @PathVariable Long productId){
         return (shoppingCartRepository.existInShoppingCart(userId, productId)!=null);
     }
 
+    @ApiOperation(value = "Update an user's amount, searching that with an user ID and a product ID", response = ShoppingCart.class)
     @PutMapping("/user/{userId}/shopping-cart/{productId}/update-amount")
     public ShoppingCart updateAmount(@PathVariable Long userId,
                                      @PathVariable Long productId,
@@ -87,6 +98,7 @@ public class ShoppingCartController {
         return shoppingCartRepository.save(existInShoppingCart);
     }
 
+    @ApiOperation(value = "Increase or decrease an user's amount, searching that with an user ID and a product ID", response = ShoppingCart.class)
     @PutMapping("/user/{userId}/shopping-cart/{productId}/amount")
     public ShoppingCart amount(@PathVariable Long userId,
                                @PathVariable Long productId,
@@ -132,6 +144,7 @@ public class ShoppingCartController {
         return value;
     }
 
+    @ApiOperation(value = "Delete a shopping cart searching that with an user ID and a product ID")
     @DeleteMapping("/user/{userId}/shopping-cart/{productId}")
     public void deleteShoppingCart(@PathVariable Long userId,
                               @PathVariable Long productId) {

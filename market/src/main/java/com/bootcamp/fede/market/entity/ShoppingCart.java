@@ -1,5 +1,6 @@
 package com.bootcamp.fede.market.entity;
 
+import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
 
 import javax.persistence.Column;
@@ -13,12 +14,15 @@ import javax.persistence.Table;
 public class ShoppingCart {
 
     @Column(name = "user_id")
+    @ApiModelProperty(notes = "The user owner of the shopping cart")
     private @Id Long userId;
 
     @Column(name = "product_id")
+    @ApiModelProperty(notes = "The product that is added the shopping cart")
     private Long productId;
 
     @Column(name = "amount")
+    @ApiModelProperty(notes = "The amount of the product which is added the shopping cart")
     private Integer amount;
 
     public ShoppingCart() {

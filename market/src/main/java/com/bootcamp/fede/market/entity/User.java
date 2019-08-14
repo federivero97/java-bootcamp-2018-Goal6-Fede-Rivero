@@ -1,6 +1,7 @@
 package com.bootcamp.fede.market.entity;
 
 
+import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
 
 import javax.persistence.*;
@@ -11,15 +12,19 @@ import javax.persistence.*;
 public class User {
 
     @Column(name = "id")
+    @ApiModelProperty(notes = "The database generated user ID")
     private @Id @GeneratedValue Long id;
 
     @Column(name = "user_name")
+    @ApiModelProperty(notes = "The user name")
     private String name;
 
     @Column(name = "password")
+    @ApiModelProperty(notes = "The user password")
     private String password;
 
     @Column(name = "email")
+    @ApiModelProperty(notes = "The user email")
     private String email;
 
     public User() {

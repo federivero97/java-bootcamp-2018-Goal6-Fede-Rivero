@@ -1,5 +1,6 @@
 package com.bootcamp.fede.market.entity;
 
+import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
 
 import javax.persistence.*;
@@ -10,15 +11,19 @@ import javax.persistence.*;
 public class Product {
 
     @Column(name = "id")
+    @ApiModelProperty(notes = "The database generated product ID")
     private @Id @GeneratedValue Long id;
 
     @Column(name = "product_name")
+    @ApiModelProperty(notes = "The product name")
     private String name;
 
     @Column(name = "price")
+    @ApiModelProperty(notes = "The product price")
     private Double price;
 
     @Column(name = "stock")
+    @ApiModelProperty(notes = "The product amount available")
     private Integer stock;
 
     public Product(){
